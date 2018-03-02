@@ -1,0 +1,58 @@
+body{max-width:100%;max-height:100%;background: #333;font-size: 14px;color: #fff;}
+a{color: #fff;}
+img{width: 100%;display: inline-block;}
+.zq_banner{width:100%;height:100%;position: absolute;left: 0;top: 0;background-image:url(../img/banner0.jpg);background-repeat: no-repeat;background-size: cover;background-position:center;overflow: hidden;}
+.zq_contentBox{max-width: 1240px;margin:20% auto 0;padding: 10px 20px;text-align: left;}
+.zq_content_title{display: inline-block;font-size: 22px;padding-bottom: 30px;}
+.zq_content_date{vertical-align: middle;font-size: 16px;padding-left: 20px;}
+.zq_content_text{line-height: 40px;}
+.zq_music{opacity: 0;margin-top:20px;width: 60px;height: 25px;padding: 2px 10px;line-height:25px;background: #FF0000;font-size: 14px;text-align: center;cursor: pointer;}
+.musicIcon{display:block;width: 20px;height: 20px;float: left;margin-top: 2px;}
+.zq_music>ul{list-style: none;height: 25px;position: relative;float: left;margin-left: 10px;}
+.zq_music>ul>.item{float: left;width: 2px;height: 2px;position: absolute;top: 50%;background: #fff;transform: translate(0,-50%);transition: height .2s linear;}
+.sound_item1{left: 0px;}
+.sound_item2{left: 6px;}
+.sound_item3{left: 12px;}
+.sound_item4{left: 18px;}
+.sound_item5{left: 24px;}
+.zhaoqiang{position: relative;overflow: hidden;}
+.zq_titBox,.zq_footBox{position: fixed;padding:0 20px;left: 0;right: 0;height: 40px;line-height: 40px;z-index: 999;}
+.zq_titBox{top: 0;}
+.z{width: 36px;height: 36px;float: left;padding: 5px 14px;}
+.zq_tabUl{float: left;}
+.zq_tabUl>li{float: left;}
+.zq_tabUl>li>a{padding: 0 14px;}
+.zq_tabUl .zq_active{color: red;}
+.zq_rightMenu{float:right;}
+.zq_rightMenu>span{display: inline-block; padding: 0 8px;}
+.place{position: relative;cursor: pointer;}
+.weather{font-family: "微软雅黑";position: absolute;right: 0;top:40px;width: 280px;padding: 30px 10px 10px;line-height: normal;border-radius: 10px;background: rgba(12,12,12,0.5);text-align: center;z-index: 99;display: none;}
+.weather_ip{font-size: 32px;font-weight: 400;}
+.weather_weather{font-size: 14px;}
+.weather_temp{font-size: 80px;font-weight: 400;padding:30px 0;}
+.weather_now{font-size: 14px;overflow: hidden;}
+.weather_week,.weather_wind,.weather_wind2,.today_nightPic,.f2_week,.f3_week,.f4_week{float: left;}
+.today_topTemp,.today_lowTemp,.sunrise_sunset,.f2_topTemp,.f3_topTemp,.f4_topTemp,.f2_lowTemp,.f3_lowTemp,.f4_lowTemp{float: right;}
+.today_nightPic,.f2_pic,.f3_pic,.f4_pic{display: inline-block;width: 20px;width: 20px;}
+.line{width: 100%;height: 1px;background: #E5E5E5;margin: 5px 0;clear: both;}
+.weather_night{position: relative;padding: 20px 0;overflow: hidden;}
+.today_nightTemp{display: inline-block;width: 40px;position: absolute;left: 50%;margin-left: -20px;}
+.future>p{padding: 10px 0;}
+.setting{width: 22px;cursor: pointer;}
+.setting>img{vertical-align: middle;}
+.zq_footBox{bottom: 60px}
+.zq_footBox a{display: block;float: left;width: 40px;height: 40px;margin:0 10px;}
+.zq_footBox>div{position: absolute;top:0;}
+.full-screen{right: 15px;}
+.index,.bing{right: 75px;}
+.bing{display: none;}
+/*.index{display: none;}*/
+.index>.zq_left{background-image: url(../img/icon.png);background-position: 0 -84px;}
+.index>.zq_right{background-image: url(../img/icon.png);background-position: 0 -126px;opacity: 0.3;}
+/*.index>.zq_left:hover{background-position: 42px -84px;}
+.index>.zq_right:hover{background-position: 42px -126px;}*/
+.index>.zq_bing,.full-screen>a,.bing>a{width:36px;height:36px;border-radius: 50%;border: 2px solid #fff;}
+.index>.zq_bing>img{width: 22px;margin: 8px;}
+.bing>a>img,.full-screen>a>img{width: 20px;margin: 8px;}
+.zq_footerTxt{position: fixed;width: 100%;height: 20px;line-height:20px;text-align: right;bottom: 20px;right: 0;padding-right: 20px;font-size: 12px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;}
+.zq_footerTxt span:hover{color: red;cursor: pointer;}
