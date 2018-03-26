@@ -203,7 +203,7 @@ function formatterDateTime() {
 //ip
 $.ajax({
 		type:"post",
-		url:"http://route.showapi.com/9-4",
+//		url:"http://route.showapi.com/9-4",
 		async:true,
 		dataType:'json',
 		data:{
@@ -228,7 +228,7 @@ $.ajax({
 $(".place").hover(function(){
 	$.ajax({
 		type:"post",
-		url:"http://route.showapi.com/9-4",
+//		url:"http://route.showapi.com/9-4",
 		async:true,
 		dataType:'json',
 		data:{
@@ -274,7 +274,131 @@ $(".place").hover(function(){
     	}
 	});
 },function(){
-	$(".weather").stop().fadeOut(300);
+	$(".weather").stop().fadeOut(50);
 })
 
+
+//index yilu music about --tab
+$(".zq_tabUl").find("li").click(function(){
+	var tabNow = $(this).index();
+	$(".zhaoqiang").stop().animate({opacity:0,top:30,zIndex:8},300).eq(tabNow).stop().animate({opacity:1,top:0,zIndex:10},300);
 })
+
+//customScrollBal
+$(".yilu_scroll,.music_scroll").mCustomScrollbar({
+	set_width:"100%",
+	set_height:"90%",
+	scrollInertia:500,
+	mouseWheel:{
+		scrollAmount:300
+	},
+	scrollButtons:{
+		enable:false //上下箭头
+	},
+	callbacks:{
+		whileScrolling:function(){
+//			console.log(this.mcs.topPct+"%");
+		}
+	}
+});
+
+//musci
+hashchange();
+$(window).on( 'hashchange', function(e){
+	hashchange();
+});
+
+function hashchange(){
+	var indexHs = window.location.hash.substring(1);
+	if(indexHs == "music"){
+		$.ajax({
+		  type: "get",
+		  async: false,
+		  url: "http://y.gtimg.cn/music/h5/lib/js/music-1.0.min.js?max_age=604800",
+		  dataType: "jsonp",
+		  jsonp: "callback",
+		  jsonpCallback: "JsonCallback",
+		  scriptCharset: 'GBK',//设置编码，否则会乱码
+		  success: function(data) {
+		    console.log(JSON.stringify(data))
+		  },
+		  error: function() {
+		    console.log('fail');
+		  }
+		});
+	}
+}
+
+//search
+$(".searcg_inp").focus(function(){
+	$("#search_btn").find("a").stop().fadeIn();
+})
+$(".searcg_inp").focusout(function(){
+	$("#search_btn").find("a").fadeOut(50);
+})
+
+//search_jieguo
+$("#search_btn").click(function(){
+	var song = $(".searcg_inp").val();
+	$(".gedan_and_top").stop().fadeOut(100);
+	$(".search_jieguo").stop().fadeIn(300);
+	$.ajax({
+		type:"get",
+		url:"http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0& n=5&aggr=1&cr=1&loginUin=0& inCharset=GB2312&outCharset=utf-8&notice=0& platform=jqminiframe.json&needNewCode=0&p=1&catZhida=0& remoteplace=sizer.newclient.next_song&w="+song,
+		async:false,
+		dataType:"jsonp",
+		jsonp: "jsonpCallback",
+//		headers:{
+//			"Referer":"http://music.163.com/",
+//			"Content-Type":"text/plain;charset=UTF-8"
+//		},
+		success:function(data){
+			console.log(data.data.song);
+			for(i in data.data.song.list){
+				var mNum = parseInt(i)+1;
+				var mName = data.data.song.list[i].fsong;
+				var mSinger = data.data.song.list[i].fsinger;
+				var createMusic_list = "<li class='music_listOne'><div class='return_list'><div class='return_checkbox'></div><div class='return_gequ musicSong'><i class='return_num'>"+ mNum +"</i>"+ mName +"<div class='musicSong_iconBox'><span class='playMusic'><a class='play_icon'></a></span><span class='shoucangMusic'><a class='shoucang_icon'></a></span><span class='fenxiangMusic'><a class='fenxiang_icon'></a></span></div></div><div class='return_geshou'>"
+				+ mSinger +"</div><div class='return_shichang'><span class='timeLong'>04:35</span><span class='delete'><a class='delete_icon'></a><span></div></div><i class='return_line'></i></li>"
+				$(".return_content").find("ul").append(createMusic_list);
+			}
+		},
+		error:function(e){
+			console.log('error');
+		}
+	});
+})
+
+
+
+
+
+
+
+
+
+//return
+$("#return_go").click(function(){
+	$(".search_jieguo").stop().fadeOut(100);
+	$(".gedan_and_top").stop().fadeIn(300);
+})
+
+//checkbox -all
+$("#return_all").click(function(){
+	$(this).css("background","url(img/icon_sprite.png)-60px 260px");
+	$(this).addClass("return_checkbox_active");
+})
+
+
+
+
+//gedan_nav_tab
+$(".gedan_nav").find("a").click(function(){
+	$(this).addClass("gedan_nav_active").siblings().removeClass("gedan_nav_active");
+})
+
+
+
+
+
+});
