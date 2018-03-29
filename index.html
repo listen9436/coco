@@ -6,6 +6,7 @@
 		<title>树深时见鹿''</title>
 		<link rel="stylesheet" type="text/css" href="css/reset.css"/>
 		<link rel="stylesheet" type="text/css" href="css/loader.css">
+		<link rel="stylesheet" type="text/css" href="css/layer.css"/>
 		<link rel="stylesheet" type="text/css" href="css/bing.css"/>
 		<link rel="stylesheet" type="text/css" href="css/jquery.mCustomScrollbar.min.css"/>
 	</head>
@@ -403,7 +404,7 @@
 				
 				                <li class="slide_one">
 				                    <div class="one_pic">
-				                        <a href="#"><img class="big_pic" src="images/12.jpg"></a>
+				                        <a href="#"><img class="big_pic" src="images/8.jpg"></a>
 				                        <i class="pic_shadow"></i>
 				                        <i class="pic_icon"></i>
 				                    </div>
@@ -641,20 +642,37 @@
 					<a href="javascript:;" class="musicBtn_next"></a>
 				</div>	
 				<div class="player_middle">
-					
+					<div class="player_now">
+						<div class="player_nowMusic">
+							<a href="#" class="player_nowMusic_song">飞鸟与鱼</a>
+							<span>-</span>
+							<a href="#" class="player_nowMusic_singer">郁可唯</a>
+						</div>
+						<div class="player_nowTime">
+							<a class="player_nowTime1">02:23</a>
+							<span>/</span>
+							<a class="player_nowTime2">04:03</a>
+						</div>
+					</div>
+					<div class="player_line">
+						<div class="player_lineLoading"></div>
+						<div class="player_lineNow"><i><img src="img/circle.png"/></i></div>
+					</div>
 				</div>
 				<div class="player_right">
 					
 				</div>
 			</div>
-			<audio></audio>
+			
 		</div>
 	</div>
 	
 	<div class="about zhaoqiang">
 		<h1>啊实打实大所大所大所</h1>	<h1>啊实打实大所大所大所</h1>
 	</div>
-	<script type="text/javascript" src="js/bing.js"></script>
+	<audio id="musicID" height="0" width="0" autoplay="false" src=""></audio>
+	<script src="js/layer.js"></script>
 	<script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script type="text/javascript" src="js/bing.js"></script>
 </body>
 </html>
