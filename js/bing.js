@@ -12,10 +12,11 @@ var arr = ["星期日","星期一","星期二","星期三","星期四","星期�
 var arr2 = ["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];
 var date = arr[myDate.getDay()];
 var time = year+"-"+mouth+"-"+day+" "+date;
-//音乐
+
 var ka = 1;
 var timer = null;
 
+//首页banner切换
 $('.zq_left').click(function(){
 	$(".zq_right").animate({opacity:1},200);
 	$(".zq_right").css("cursor","pointer");
@@ -82,7 +83,12 @@ $('.zq_right').click(function(){
 		$(".zq_content_text").text(arrText[br]);
 	}
 });
+//切换Bing
 $(".zq_bing").click(function(){
+	layer.msg("正在切换为Bing壁纸...",{
+		time:1500,
+		offset: [800,0],
+	});
 	$(".index").fadeOut(0);
 	$(".bing").fadeIn(0);
 	$(".zq_music").animate({opacity:0},300);
@@ -115,7 +121,12 @@ $(".zq_bing").click(function(){
         }
 	})
 })
+//切换回默认
 $(".bing").click(function(){
+	layer.msg("正在切换为默认壁纸...",{
+		time:1500,
+		offset: [800,0],
+	});
 	$(".bing").fadeOut(0);
 	$(".index").fadeIn(0);
 	if(br == 1){
@@ -129,7 +140,7 @@ $(".bing").click(function(){
 	$(".zq_content_date").text(arrDate[br]);
 	$(".zq_content_text").text(arrText[br]);
 })
-
+//首页的歌曲
 function aaa(){
 	var a1 = Math.random()*21;
 	var a2 = Math.random()*21;
@@ -148,6 +159,9 @@ $(".zq_music").click(function(){
 		$(".zq_music").find("a").text("暂停");
 		timer = setInterval(aaa,200);
 		ka = 2;
+		
+		//把music里的音乐关掉
+		$("#musicID")[0].pause();
 	}else{
 		$("#kanong")[0].pause();
 		$(".zq_music").find("a").text("播放");
@@ -182,7 +196,7 @@ function toggleFullScreen() {
     }  
 }
 
-//天气
+//天气的时间
 function formatterDateTime() {
   var date=new Date()
   var month=date.getMonth() + 1
@@ -200,7 +214,7 @@ function formatterDateTime() {
         return datetime;
 }
 
-//ip
+//获取ip
 $.ajax({
 		type:"post",
 //		url:"http://route.showapi.com/9-4",
@@ -224,7 +238,7 @@ $.ajax({
         	$(".ip").text(data.showapi_res_body.cityInfo.c7);
     	}
 });
-
+//获取天气
 $(".place").hover(function(){
 	$.ajax({
 		type:"post",
@@ -285,7 +299,7 @@ $(".zq_tabUl").find("li").click(function(){
 })
 
 //customScrollBal
-$(".yilu_scroll,.music_scroll").mCustomScrollbar({
+$(".yilu_scroll").mCustomScrollbar({
 	set_width:"100%",
 	set_height:"90%",
 	scrollInertia:500,
@@ -302,7 +316,29 @@ $(".yilu_scroll,.music_scroll").mCustomScrollbar({
 	}
 });
 
-//musci
+$(".music_scroll").mCustomScrollbar({
+	set_width:"100%",
+	set_height:"80%",
+	scrollInertia:500,
+	mouseWheel:{
+		scrollAmount:300
+	},
+	scrollButtons:{
+		enable:false //上下箭头
+	},
+	callbacks:{
+		whileScrolling:function(){
+//			console.log(this.mcs.topPct+"%");
+		}
+	}
+});
+
+//歌单-tab
+$(".gedan_nav").find("a").click(function(){
+	$(this).addClass("gedan_nav_active").siblings().removeClass("gedan_nav_active");
+})
+
+//进入music页面
 hashchange();
 $(window).on( 'hashchange', function(e){
 	hashchange();
@@ -329,19 +365,39 @@ function hashchange(){
 	}
 }
 
-//search
+
+//返回按钮
+$("#return_go").click(function(){
+	$(".search_jieguo").stop().fadeOut(100);
+	$(".gedan_and_top").stop().fadeIn(300);
+})
+
+//全选
+$("#return_all").click(function(){
+	$(this).css("background","url(img/icon_sprite.png)-60px 260px");
+	$(this).addClass("return_checkbox_active");
+})
+
+
+//搜索框input
 $(".searcg_inp").focus(function(){
 	$("#search_btn").find("a").stop().fadeIn();
 })
 $(".searcg_inp").focusout(function(){
 	$("#search_btn").find("a").fadeOut(50);
 })
-
-//search_jieguo
+$('.searcg_inp').bind('keypress',function(event){  
+    if(event.keyCode == "13"){
+    	$('#search_btn').click();
+    }
+});  
+//搜索结果
 $("#search_btn").click(function(){
 	var song = $(".searcg_inp").val();
 	$(".gedan_and_top").stop().fadeOut(100);
 	$(".search_jieguo").stop().fadeIn(300);
+//	if(!$(".return_content ul").html()){}  判断元素内为空
+	$(".return_content ul").empty(); // 清空
 	$.ajax({
 		type:"get",
 		url:"http://s.music.qq.com/fcgi-bin/music_search_new_platform?t=0& n=5&aggr=1&cr=1&loginUin=0& inCharset=GB2312&outCharset=utf-8&notice=0& platform=jqminiframe.json&needNewCode=0&p=1&catZhida=0& remoteplace=sizer.newclient.next_song&w="+song,
@@ -352,16 +408,83 @@ $("#search_btn").click(function(){
 //			"Referer":"http://music.163.com/",
 //			"Content-Type":"text/plain;charset=UTF-8"
 //		},
+		beforeSend: function () {
+        	layer.load(2,{
+        		shade: [0.5, '#000']
+        	});
+    	},
 		success:function(data){
+			//关闭所有加载层
+			layer.closeAll('loading');
 			console.log(data.data.song);
+			var mArray = [];
 			for(i in data.data.song.list){
 				var mNum = parseInt(i)+1;
 				var mName = data.data.song.list[i].fsong;
 				var mSinger = data.data.song.list[i].fsinger;
-				var createMusic_list = "<li class='music_listOne'><div class='return_list'><div class='return_checkbox'></div><div class='return_gequ musicSong'><i class='return_num'>"+ mNum +"</i>"+ mName +"<div class='musicSong_iconBox'><span class='playMusic'><a class='play_icon'></a></span><span class='shoucangMusic'><a class='shoucang_icon'></a></span><span class='fenxiangMusic'><a class='fenxiang_icon'></a></span></div></div><div class='return_geshou'>"
-				+ mSinger +"</div><div class='return_shichang'><span class='timeLong'>04:35</span><span class='delete'><a class='delete_icon'></a><span></div></div><i class='return_line'></i></li>"
+				var createMusic_list = "<li class='music_listOne'><div class='return_list'><div class='return_checkbox'></div><div class='return_gequ musicSong'><i class='return_num'>"+ mNum +"</i>"+ mName +"<div class='musicSong_iconBox'><span class='playMusic'></span><span class='shoucangMusic'></span><span class='fenxiangMusic'></span></div></div><div class='return_geshou'>"
+				+ mSinger +"</div><div class='return_shichang'><span class='timeLong'>04:35</span><span class='deleteMusic'><span></div></div><i class='return_line'></i></li>";
 				$(".return_content").find("ul").append(createMusic_list);
+				var music = data.data.song.list[i].f.split("|");
+				mArray.push(music);
 			}
+//			console.log(mArray);
+			var mArray2 = [];  //src
+			var mArray3 = [];  //pic
+			for(var i=0;i<mArray.length;i++){
+				mArray2.push(mArray[i].slice(-5,-4));  //倒数第5个为歌曲ID
+				mArray3.push(mArray[i].slice(4,5));  //正数 5是 图片
+			}
+//			console.log(mArray2[3]);
+			//每条音乐里的操作
+			$(".return_content>ul").on("click",".playMusic",function(){
+				//父元素得是在html中能找到的元素，不能为创建出的元素
+				var listIndex = $(this).parents(".music_listOne").index();
+			//	alert(listIndex);
+			//	$(".bgbgbg").find("img").attr("src",$musicPic); 测试用
+				var $musicSrc = "http://ws.stream.qqmusic.qq.com/C100"+mArray2[listIndex]+".m4a?fromtag=0";
+				var $musicPic = "http://imgcache.qq.com/music/photo/album_300/"+(mArray3[listIndex]%100)+"/300_albumpic_"+mArray3[listIndex]+"_0.jpg";
+				var $musicSong = data.data.song.list[listIndex].fsong;
+				var $musicSinger = data.data.song.list[listIndex].fsinger;
+				var $musicSinger2 = data.data.song.list[listIndex].fsinger2;
+				//歌曲-歌手
+				$(".player_nowMusic_song").html($musicSong);
+				$(".player_nowMusic_singer").html($musicSinger);
+				$(".player_nowMusic_singer2").html($musicSinger2);
+
+				//背景模糊
+				var imgLoad = false,animate = false;
+				//先加入渐变背景
+				$(".backgroundBlur").animate({opacity:1},200,function(){
+					if(animate){
+						$("#blur_img").attr("src",$musicPic);
+						$("#blur_img").stop().animate({opacity:1},800);
+					}else{
+						imgLoad = true; //告诉下面函数，图片已准备好
+					};
+				})
+				//先把上个图片淡去，然后更换图片(正常情况循环此函数)
+				$("#blur_img").stop().animate({opacity:0.2},500,function(){
+					if(imgLoad){
+						$("#blur_img").attr("src",$musicPic);
+						$("#blur_img").stop().animate({opacity:1},800);
+					}else{
+						animate = true;  //可以加载图片了
+					}
+				});
+				//音乐播放
+				$("#musicID").attr("src",$musicSrc);
+				//暂停外面的
+				$("#kanong")[0].pause();
+				$(".zq_music").find("a").text("播放");
+				clearInterval(timer);
+				$(".item").css({height:2});
+				ka = 1;
+			});
+			//双击也可以
+			$(".return_content>ul").on("dblclick",".music_listOne",function(){
+				$(this).find(".playMusic").click();
+			});
 		},
 		error:function(e){
 			console.log('error');
@@ -369,33 +492,26 @@ $("#search_btn").click(function(){
 	});
 })
 
+//循环
+$(".musicBtn_xunhuan").click(function(){
+	alert($musicSrc);
+});
 
+//like
+$(".musicBtn_like").click(function(){
+	$(this).css("background-position","-30px -96px");
+});
 
+//download
+$(".musicBtn_download").click(function(){
+	alert($musicPic);
+});
 
+//纯净模式
+$(".musicBtn_chunjing").click(function(){
+	$(this).css("background-position","0 -312px");
+});
 
-
-
-
-
-//return
-$("#return_go").click(function(){
-	$(".search_jieguo").stop().fadeOut(100);
-	$(".gedan_and_top").stop().fadeIn(300);
-})
-
-//checkbox -all
-$("#return_all").click(function(){
-	$(this).css("background","url(img/icon_sprite.png)-60px 260px");
-	$(this).addClass("return_checkbox_active");
-})
-
-
-
-
-//gedan_nav_tab
-$(".gedan_nav").find("a").click(function(){
-	$(this).addClass("gedan_nav_active").siblings().removeClass("gedan_nav_active");
-})
 
 
 
