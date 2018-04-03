@@ -14,7 +14,16 @@ var date = arr[myDate.getDay()];
 var time = year+"-"+mouth+"-"+day+" "+date;
 
 var ka = 1;
-var timer = null;
+var timer = null; //外面的音乐按钮
+var dataMusic = ""; //存所有music数据
+var mArray2 = [];  //src
+var mArray3 = [];  //pic
+var mPrevSrc = "";
+var mNextSrc = "";
+var mPrevSrcPic = "";
+var mNextSrcPic = "";
+var mAudio = $("#musicID")[0];
+var mTimer; //music播放器 定时器
 
 //首页banner切换
 $('.zq_left').click(function(){
@@ -161,7 +170,10 @@ $(".zq_music").click(function(){
 		ka = 2;
 		
 		//把music里的音乐关掉
-		$("#musicID")[0].pause();
+		mAudio.pause();
+		$(".musicBtn_play").css("display","block");
+		$(".musicBtn_stop").css("display","none");
+		clearInterval(mTimer);
 	}else{
 		$("#kanong")[0].pause();
 		$(".zq_music").find("a").text("播放");
@@ -408,7 +420,7 @@ $("#search_btn").click(function(){
 //			"Referer":"http://music.163.com/",
 //			"Content-Type":"text/plain;charset=UTF-8"
 //		},
-		beforeSend: function () {
+		beforeSend: function () {  //发送请求时添加 layer-loading
         	layer.load(2,{
         		shade: [0.5, '#000']
         	});
@@ -416,7 +428,8 @@ $("#search_btn").click(function(){
 		success:function(data){
 			//关闭所有加载层
 			layer.closeAll('loading');
-			console.log(data.data.song);
+//			console.log(data.data.song);
+			dataMusic = data;
 			var mArray = [];
 			for(i in data.data.song.list){
 				var mNum = parseInt(i)+1;
@@ -429,68 +442,152 @@ $("#search_btn").click(function(){
 				mArray.push(music);
 			}
 //			console.log(mArray);
-			var mArray2 = [];  //src
-			var mArray3 = [];  //pic
+			mArray2 = []; //push累加，先清空一下
+			mArray3 = [];
 			for(var i=0;i<mArray.length;i++){
 				mArray2.push(mArray[i].slice(-5,-4));  //倒数第5个为歌曲ID
 				mArray3.push(mArray[i].slice(4,5));  //正数 5是 图片
 			}
 //			console.log(mArray2[3]);
-			//每条音乐里的操作
-			$(".return_content>ul").on("click",".playMusic",function(){
-				//父元素得是在html中能找到的元素，不能为创建出的元素
-				var listIndex = $(this).parents(".music_listOne").index();
-			//	alert(listIndex);
-			//	$(".bgbgbg").find("img").attr("src",$musicPic); 测试用
-				var $musicSrc = "http://ws.stream.qqmusic.qq.com/C100"+mArray2[listIndex]+".m4a?fromtag=0";
-				var $musicPic = "http://imgcache.qq.com/music/photo/album_300/"+(mArray3[listIndex]%100)+"/300_albumpic_"+mArray3[listIndex]+"_0.jpg";
-				var $musicSong = data.data.song.list[listIndex].fsong;
-				var $musicSinger = data.data.song.list[listIndex].fsinger;
-				var $musicSinger2 = data.data.song.list[listIndex].fsinger2;
-				//歌曲-歌手
-				$(".player_nowMusic_song").html($musicSong);
-				$(".player_nowMusic_singer").html($musicSinger);
-				$(".player_nowMusic_singer2").html($musicSinger2);
-
-				//背景模糊
-				var imgLoad = false,animate = false;
-				//先加入渐变背景
-				$(".backgroundBlur").animate({opacity:1},200,function(){
-					if(animate){
-						$("#blur_img").attr("src",$musicPic);
-						$("#blur_img").stop().animate({opacity:1},800);
-					}else{
-						imgLoad = true; //告诉下面函数，图片已准备好
-					};
-				})
-				//先把上个图片淡去，然后更换图片(正常情况循环此函数)
-				$("#blur_img").stop().animate({opacity:0.2},500,function(){
-					if(imgLoad){
-						$("#blur_img").attr("src",$musicPic);
-						$("#blur_img").stop().animate({opacity:1},800);
-					}else{
-						animate = true;  //可以加载图片了
-					}
-				});
-				//音乐播放
-				$("#musicID").attr("src",$musicSrc);
-				//暂停外面的
-				$("#kanong")[0].pause();
-				$(".zq_music").find("a").text("播放");
-				clearInterval(timer);
-				$(".item").css({height:2});
-				ka = 1;
-			});
-			//双击也可以
-			$(".return_content>ul").on("dblclick",".music_listOne",function(){
-				$(this).find(".playMusic").click();
-			});
 		},
 		error:function(e){
 			console.log('error');
 		}
 	});
 })
+//每条音乐里的操作
+$(".return_content>ul").on("click",".playMusic",function(){
+//父元素得是在html中能找到的元素，不能为创建出的元素
+	var listIndex = $(this).parents(".music_listOne").index();
+	//	alert(listIndex);
+	//	$(".bgbgbg").find("img").attr("src",$musicPic); 测试用
+	var $musicSrc = "http://ws.stream.qqmusic.qq.com/C100"+mArray2[listIndex]+".m4a?fromtag=0";
+	var $musicPic = "http://imgcache.qq.com/music/photo/album_300/"+(mArray3[listIndex]%100)+"/300_albumpic_"+mArray3[listIndex]+"_0.jpg";
+	var $musicSong = dataMusic.data.song.list[listIndex].fsong;
+	var $musicSinger = dataMusic.data.song.list[listIndex].fsinger;
+	var $musicSinger2 = dataMusic.data.song.list[listIndex].fsinger2;
+	//歌曲-歌手
+	$(".player_nowMusic_song").html($musicSong);
+	$(".player_nowMusic_singer").html($musicSinger);
+	$(".player_nowMusic_singer2").html($musicSinger2);
+
+	//背景模糊
+	var imgLoad = false,animate = false;
+	//先加入渐变背景
+	$(".backgroundBlur").animate({opacity:1},200,function(){
+		if(animate){
+			$("#blur_img").attr("src",$musicPic);
+			$("#blur_img").stop().animate({opacity:1},800);
+		}else{
+			imgLoad = true; //告诉下面函数，图片已准备好
+		};
+	})
+	//先把上个图片淡去，然后更换图片(正常情况循环此函数)
+	$("#blur_img").stop().animate({opacity:0.2},500,function(){
+		if(imgLoad){
+			$("#blur_img").attr("src",$musicPic);
+			$("#blur_img").stop().animate({opacity:1},800);
+		}else{
+			animate = true;  //可以加载图片了
+		}
+	});
+	//音乐播放
+	$("#musicID").attr("src",$musicSrc);
+	$(".musicBtn_play").css("display","none");
+	$(".musicBtn_stop").css("display","block");
+	//暂停外面的
+	$("#kanong")[0].pause();
+	$(".zq_music").find("a").text("播放");
+	clearInterval(timer);
+	$(".item").css({height:2});
+	ka = 1;
+	
+	//timeLong
+	$("#musicID").bind("canplay",function(){
+		//canplay当歌曲可以播放时，否则因为还没加载完音频，所以duration会返回NaN
+		//以下好多属性都得在 audio 获取到音乐信息后才能用
+		
+		//先清空
+		clearInterval(mTimer);
+		$(".player_lineLoading").css("width",0);
+		$(".player_lineNow").css("width",0);
+		mTimeLong(mAudio.duration);
+		
+		mTimer = setInterval(function(){
+			mTimeNow(mAudio.currentTime);
+			mLineLoading();
+			mLineNow();
+		},500);
+	})
+	
+});
+
+//双击也可以
+$(".return_content>ul").on("dblclick",".music_listOne",function(){
+	$(this).find(".playMusic").click();
+});
+
+//歌曲总时长
+function mTimeLong(time){
+	time = time.toFixed(2);  //toFixed(2) 四舍五入，后面指定保留几位小数
+	var minuteA = parseInt(time/60);
+	var secondA = parseInt(time%60);
+	minuteA = minuteA >= 10 ? minuteA : "0" + minuteA;
+	secondA = secondA >= 10 ? secondA : "0" + secondA;
+	$(".player_nowTime2").text(minuteA + ":" + secondA);
+}
+//歌曲当前时间
+function mTimeNow(time){
+	time = time.toFixed(2);
+	var minuteA = parseInt(time/60);
+	var secondA = parseInt(time%60);
+	minuteA = minuteA >= 10 ? minuteA : "0" + minuteA;
+	secondA = secondA >= 10 ? secondA : "0" + secondA;
+	$(".player_nowTime1").text(minuteA + ":" + secondA);
+}
+//缓存条
+function mLineLoading(){
+//	console.log(mAudio.buffered);
+//	console.log("Start: " + mAudio.buffered.start(0) + " End: "  + mAudio.buffered.end(0));
+	var buffered = 100 * mAudio.buffered.end(0) / mAudio.duration;
+	$(".player_lineLoading").css("width",buffered + "%");
+}
+//进度条
+function mLineNow(){
+	var duration = mAudio.duration;
+	duration = duration.toFixed(2);
+	var currentTime = mAudio.currentTime;
+	currentTime = currentTime.toFixed(2);
+	var lineNow = 100 * currentTime / duration;
+	$(".player_lineNow").css("width",lineNow + "%");
+}
+
+//暂停
+$(".musicBtn_stop").click(function(){
+	$(this).css("display","none");
+	$(".musicBtn_play").css("display","block");
+	clearInterval(mTimer);
+	mAudio.pause();
+})
+//播放
+$(".musicBtn_play").click(function(){
+	$(this).css("display","none");
+	$(".musicBtn_stop").css("display","block");
+	mTimer = setInterval(function(){
+		mTimeNow(mAudio.currentTime);
+		mLineLoading();
+		mLineNow();
+	},500);
+	mAudio.play();
+	//暂停外面的
+	$("#kanong")[0].pause();
+	$(".zq_music").find("a").text("播放");
+	clearInterval(timer);
+	$(".item").css({height:2});
+	ka = 1;
+})
+
+
 
 //循环
 $(".musicBtn_xunhuan").click(function(){
@@ -511,10 +608,6 @@ $(".musicBtn_download").click(function(){
 $(".musicBtn_chunjing").click(function(){
 	$(this).css("background-position","0 -312px");
 });
-
-
-
-
 
 
 });
