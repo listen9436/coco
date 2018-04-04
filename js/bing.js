@@ -16,12 +16,9 @@ var time = year+"-"+mouth+"-"+day+" "+date;
 var ka = 1;
 var timer = null; //外面的音乐按钮
 var dataMusic = ""; //存所有music数据
+var listIndex = 0;  //点击的是哪条
 var mArray2 = [];  //src
 var mArray3 = [];  //pic
-var mPrevSrc = "";
-var mNextSrc = "";
-var mPrevSrcPic = "";
-var mNextSrcPic = "";
 var mAudio = $("#musicID")[0];
 var mTimer; //music播放器 定时器
 
@@ -229,7 +226,7 @@ function formatterDateTime() {
 //获取ip
 $.ajax({
 		type:"post",
-//		url:"http://route.showapi.com/9-4",
+		url:"http://route.showapi.com/9-4",
 		async:true,
 		dataType:'json',
 		data:{
@@ -254,7 +251,7 @@ $.ajax({
 $(".place").hover(function(){
 	$.ajax({
 		type:"post",
-//		url:"http://route.showapi.com/9-4",
+		url:"http://route.showapi.com/9-4",
 		async:true,
 		dataType:'json',
 		data:{
@@ -303,14 +300,14 @@ $(".place").hover(function(){
 	$(".weather").stop().fadeOut(50);
 })
 
-
 //index yilu music about --tab
 $(".zq_tabUl").find("li").click(function(){
 	var tabNow = $(this).index();
+	$(".zq_tabUl>li").find("a").removeClass("zq_active").parents(".zq_tabUl").find("li").eq(tabNow).find("a").addClass("zq_active");
 	$(".zhaoqiang").stop().animate({opacity:0,top:30,zIndex:8},300).eq(tabNow).stop().animate({opacity:1,top:0,zIndex:10},300);
 })
 
-//customScrollBal
+//customScrollBal - yilu
 $(".yilu_scroll").mCustomScrollbar({
 	set_width:"100%",
 	set_height:"90%",
@@ -328,6 +325,67 @@ $(".yilu_scroll").mCustomScrollbar({
 	}
 });
 
+//监听hash变化加载相应页
+hashchange();
+$(window).on( 'hashchange', function(e){
+	hashchange();
+});
+function hashchange(){
+	var indexHs = window.location.hash.substring(1);
+	//进入aload
+	if(indexHs == "aload"){
+		var aloadContent =  $(".yilu_scroll").find("#mCSB_1_container");
+		var photoArray = [];
+		if($(aloadContent).find(".diary_content").length < 1){
+//			console.log(1); //如果内容为空就加载，
+			$.ajax({
+				type:"get",
+				async:false,
+				url:"js/MyTidings.json",
+				dataType:"json",
+				success:function(data){
+//					console.log(data);
+					for(i in data){
+						var tidingsDate = data[i].DATE;
+						var tidingsPlace = data[i].PLACE;
+						var tidingsContent = data[i].CONTENT;
+						var tidingsPhotoBox = "<a><img src='css/loading-2.gif' data-original="+ data[i].PHOTOS +"/></a>" + "<a><img src="+ data[i].PHOTOS2 +"/></a>" + "<a><img src="+ data[i].PHOTOS3 +"/></a>" + "<a><img src="+ data[i].PHOTOS4 +"/></a>" 
+						+ "<a><img src="+ data[i].PHOTOS5 +"/></a>" +"<a><img src="+ data[i].PHOTOS6 +"/></a>" +"<a><img src="+ data[i].PHOTOS7 +"/></a>";
+						var dataList_MyTidings = "<div class='diary_content'><h3 class='diary_title'>"+tidingsDate+"</h3><div class='diary_now'><span class='diary_time'>328天前</span><span class='diary_place'>"+tidingsPlace
+						+"</span></div><div class='diary_text'>"+tidingsContent+"</div><div class='diary_imgBox'>"+tidingsPhotoBox+"</div></div>";
+						$(".yilu_scroll").find("#mCSB_1_container").append(dataList_MyTidings);	
+					}
+					//为图片添加懒加载
+					$(".diary_imgBox").find("img").lazyload({
+      					effect: "fadeIn"
+  					});
+				}
+			});
+		}
+	}
+	//进入music
+	if(indexHs == "music"){
+		$.ajax({
+		  type: "get",
+		  async: false,
+		  url: "http://y.gtimg.cn/music/h5/lib/js/music-1.0.min.js?max_age=604800",
+		  dataType: "jsonp",
+		  jsonp: "callback",
+		  jsonpCallback: "JsonCallback",
+		  scriptCharset: 'GBK',//设置编码，否则会乱码
+		  success: function(data) {
+		    console.log(JSON.stringify(data))
+		  },
+		  error: function() {
+		    console.log('fail');
+		  }
+		});
+	}
+}
+
+
+
+//customScrollBal - music
 $(".music_scroll").mCustomScrollbar({
 	set_width:"100%",
 	set_height:"80%",
@@ -350,34 +408,6 @@ $(".gedan_nav").find("a").click(function(){
 	$(this).addClass("gedan_nav_active").siblings().removeClass("gedan_nav_active");
 })
 
-//进入music页面
-hashchange();
-$(window).on( 'hashchange', function(e){
-	hashchange();
-});
-
-function hashchange(){
-	var indexHs = window.location.hash.substring(1);
-	if(indexHs == "music"){
-		$.ajax({
-		  type: "get",
-		  async: false,
-		  url: "http://y.gtimg.cn/music/h5/lib/js/music-1.0.min.js?max_age=604800",
-		  dataType: "jsonp",
-		  jsonp: "callback",
-		  jsonpCallback: "JsonCallback",
-		  scriptCharset: 'GBK',//设置编码，否则会乱码
-		  success: function(data) {
-		    console.log(JSON.stringify(data))
-		  },
-		  error: function() {
-		    console.log('fail');
-		  }
-		});
-	}
-}
-
-
 //返回按钮
 $("#return_go").click(function(){
 	$(".search_jieguo").stop().fadeOut(100);
@@ -389,7 +419,6 @@ $("#return_all").click(function(){
 	$(this).css("background","url(img/icon_sprite.png)-60px 260px");
 	$(this).addClass("return_checkbox_active");
 })
-
 
 //搜索框input
 $(".searcg_inp").focus(function(){
@@ -408,7 +437,7 @@ $("#search_btn").click(function(){
 	var song = $(".searcg_inp").val();
 	$(".gedan_and_top").stop().fadeOut(100);
 	$(".search_jieguo").stop().fadeIn(300);
-//	if(!$(".return_content ul").html()){}  判断元素内为空
+//	if(!$(".return_content ul").html()){}  判断元素内不为空
 	$(".return_content ul").empty(); // 清空
 	$.ajax({
 		type:"get",
@@ -435,7 +464,7 @@ $("#search_btn").click(function(){
 				var mNum = parseInt(i)+1;
 				var mName = data.data.song.list[i].fsong;
 				var mSinger = data.data.song.list[i].fsinger;
-				var createMusic_list = "<li class='music_listOne'><div class='return_list'><div class='return_checkbox'></div><div class='return_gequ musicSong'><i class='return_num'>"+ mNum +"</i>"+ mName +"<div class='musicSong_iconBox'><span class='playMusic'></span><span class='shoucangMusic'></span><span class='fenxiangMusic'></span></div></div><div class='return_geshou'>"
+				var createMusic_list = "<li class='music_listOne'><div class='return_list'><div class='return_checkbox'></div><div class='return_gequ musicSong'><a class='renturn_playNow'><img src='img/wave.gif' /></a><i class='return_num'>"+ mNum +"</i>"+ mName +"<div class='musicSong_iconBox'><span class='playMusic'></span><span class='shoucangMusic'></span><span class='fenxiangMusic'></span></div></div><div class='return_geshou'>"
 				+ mSinger +"</div><div class='return_shichang'><span class='timeLong'>04:35</span><span class='deleteMusic'><span></div></div><i class='return_line'></i></li>";
 				$(".return_content").find("ul").append(createMusic_list);
 				var music = data.data.song.list[i].f.split("|");
@@ -458,9 +487,21 @@ $("#search_btn").click(function(){
 //每条音乐里的操作
 $(".return_content>ul").on("click",".playMusic",function(){
 //父元素得是在html中能找到的元素，不能为创建出的元素
-	var listIndex = $(this).parents(".music_listOne").index();
+	listIndex = $(this).parents(".music_listOne").index();
 	//	alert(listIndex);
-	//	$(".bgbgbg").find("img").attr("src",$musicPic); 测试用
+	
+	//播放
+	mPlay();	
+});
+
+//双击也可以
+$(".return_content>ul").on("dblclick",".music_listOne",function(){
+	$(this).find(".playMusic").click();
+});
+
+//当播放时
+function mPlay(){
+//	$(".bgbgbg").find("img").attr("src",$musicPic); 测试用
 	var $musicSrc = "http://ws.stream.qqmusic.qq.com/C100"+mArray2[listIndex]+".m4a?fromtag=0";
 	var $musicPic = "http://imgcache.qq.com/music/photo/album_300/"+(mArray3[listIndex]%100)+"/300_albumpic_"+mArray3[listIndex]+"_0.jpg";
 	var $musicSong = dataMusic.data.song.list[listIndex].fsong;
@@ -495,37 +536,35 @@ $(".return_content>ul").on("click",".playMusic",function(){
 	$("#musicID").attr("src",$musicSrc);
 	$(".musicBtn_play").css("display","none");
 	$(".musicBtn_stop").css("display","block");
+	$(".return_list").css("color","rgba(225,225,225,.8)").eq(listIndex).css("color","#fff");
+	$(".renturn_playNow").css("display","none").eq(listIndex).css("display","block");
+	$(".return_num").css("display","block").eq(listIndex).css("display","none");
+	//把喜欢去掉
+	$(".musicBtn_like").css("background-position","0 -96px");
 	//暂停外面的
 	$("#kanong")[0].pause();
 	$(".zq_music").find("a").text("播放");
 	clearInterval(timer);
 	$(".item").css({height:2});
 	ka = 1;
-	
-	//timeLong
-	$("#musicID").bind("canplay",function(){
-		//canplay当歌曲可以播放时，否则因为还没加载完音频，所以duration会返回NaN
-		//以下好多属性都得在 audio 获取到音乐信息后才能用
-		
-		//先清空
-		clearInterval(mTimer);
-		$(".player_lineLoading").css("width",0);
-		$(".player_lineNow").css("width",0);
-		mTimeLong(mAudio.duration);
-		
-		mTimer = setInterval(function(){
-			mTimeNow(mAudio.currentTime);
-			mLineLoading();
-			mLineNow();
-		},500);
-	})
-	
-});
+}
 
-//双击也可以
-$(".return_content>ul").on("dblclick",".music_listOne",function(){
-	$(this).find(".playMusic").click();
-});
+//canplay - 当audio准备好歌曲时
+//否则因为还没加载完音频，所以duration会返回NaN
+//以下好多属性都得在 audio 获取到音乐信息后才能用
+$("#musicID").bind("canplay",function(){
+	//先清空
+	clearInterval(mTimer);
+	$(".player_lineLoading").css("width",0);
+	$(".player_lineNow").css("width",0);
+	mTimeLong(mAudio.duration);
+	//重启定时器
+	mTimer = setInterval(function(){
+		mTimeNow(mAudio.currentTime);
+		mLineLoading();
+		mLineNow();
+	},500);
+})
 
 //歌曲总时长
 function mTimeLong(time){
@@ -568,17 +607,31 @@ $(".musicBtn_stop").click(function(){
 	$(".musicBtn_play").css("display","block");
 	clearInterval(mTimer);
 	mAudio.pause();
+//	$(".return_list").css("color","rgba(225,225,225,.8)");
+	$(".renturn_playNow").css("display","none");
+	$(".return_num").css("display","block");
 })
-//播放
+//播放，准确说是继续播放
 $(".musicBtn_play").click(function(){
 	$(this).css("display","none");
 	$(".musicBtn_stop").css("display","block");
+	$(".return_list").css("color","rgba(225,225,225,.8)").eq(listIndex).css("color","#fff");
+	$(".renturn_playNow").css("display","none").eq(listIndex).css("display","block");
+	$(".return_num").css("display","block").eq(listIndex).css("display","none");
 	mTimer = setInterval(function(){
 		mTimeNow(mAudio.currentTime);
 		mLineLoading();
 		mLineNow();
 	},500);
 	mAudio.play();
+	//如果audio里没东西，则播放第一个
+	if($("#musicID").attr("src") == ""){
+		//没音乐播放时按钮不变
+		$(".musicBtn_stop").css("display","none");
+		$(".musicBtn_play").css("display","block");
+		listIndex = 0;
+		mPlay();
+	}
 	//暂停外面的
 	$("#kanong")[0].pause();
 	$(".zq_music").find("a").text("播放");
@@ -587,21 +640,63 @@ $(".musicBtn_play").click(function(){
 	ka = 1;
 })
 
+//监听播放完毕
+mAudio.addEventListener('ended', function () {
+   	$(".musicBtn_play").css("display","block");
+   	$(".musicBtn_stop").css("display","none");
+	clearInterval(mTimer);
+	mAudio.pause();
+//	console.log("yes");
+	mNext();
+});
 
+//下一首
+$(".musicBtn_next").click(function(){
+	mNext();
+})
+function mNext(){
+	listIndex += 1;
+	if(listIndex == mArray2.length){
+		listIndex = 0;
+	}
+	mPlay();
+}
+
+//上一首
+$(".musicBtn_prev").click(function(){
+	mPrev();
+})
+function mPrev(){
+	listIndex -= 1;
+	if(listIndex == -1){
+		listIndex = mArray2.length -1;
+	}
+	mPlay();
+}
 
 //循环
 $(".musicBtn_xunhuan").click(function(){
-	alert($musicSrc);
+	layer.msg("循环还没做，哈哈~",{
+		time:1500,
+		offset: [800,0],
+	});
 });
 
 //like
 $(".musicBtn_like").click(function(){
 	$(this).css("background-position","-30px -96px");
+	layer.msg("暂时还没有做登录哦~",{
+		time:1500,
+		offset: [800,0],
+	});
 });
 
 //download
 $(".musicBtn_download").click(function(){
-	alert($musicPic);
+	layer.msg("暂时还没有做登录哦~",{
+		time:1500,
+		offset: [800,0],
+	});
 });
 
 //纯净模式
@@ -609,5 +704,20 @@ $(".musicBtn_chunjing").click(function(){
 	$(this).css("background-position","0 -312px");
 });
 
+//收藏
+$(".return_content>ul").on("click",".shoucangMusic",function(){
+	layer.msg("暂时还没有做登录哦~",{
+		time:1500,
+		offset: [800,0],
+	});
+});
+
+//分享
+$(".return_content>ul").on("click",".fenxiangMusic",function(){
+	layer.msg("暂时还没有做登录哦~",{
+		time:1500,
+		offset: [800,0],
+	});
+});
 
 });
