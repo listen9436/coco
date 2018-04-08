@@ -11,24 +11,14 @@
 		<link rel="stylesheet" type="text/css" href="css/jquery.mCustomScrollbar.min.css"/>
 	</head>
 <body onselectstart="return false">
-	<script src="js/jquery-1.8.3.min.js"></script>
-
-	<!--页面加载start-->	
-	<script type="text/javascript"> 
-	    // 等待所有加载
-	    $(window).load(function(){
-	        $('body').addClass('loaded');
-	        $('#loader-wrapper .load_title').remove();
-	    }); 
-	</script>    
-
+	<!--加载loading-->
 	<div id="loader-wrapper">
 	    <div id="loader"></div>
 	    <div class="loader-section section-left"></div>
 	    <div class="loader-section section-right"></div>
 	    <div class="load_title">强爵主页......<br><span>V1.0</span></div>
 	</div>
-	<!--页面加载end-->
+	<!--页面开始-->
 	<div class="zq_banner"></div>
 	<div class="zq_titBox">
 		<div class="z" title="树深时见鹿'' | web前端_技术分享_赵强的个人网站"><a href="index.html"><img src="img/z.png"/></a></div>
@@ -613,6 +603,7 @@
 		
 	</div>
 	<audio id="musicID" height="0" width="0" autoplay="false" src=""></audio>
+	<script src="js/jquery-1.8.3.min.js"></script>
 	<script src="js/layer.js"></script>
 	<script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
 	<!--<script src="js/background-blur.min.js"></script>-->
