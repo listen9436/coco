@@ -1,3 +1,9 @@
+// 等待所有加载
+$(window).load(function(){
+	$('body').addClass('loaded');
+	$('#loader-wrapper .load_title').remove();
+});
+
 $(function(){
 	
 var br = 0;
@@ -21,6 +27,10 @@ var mArray2 = [];  //src
 var mArray3 = [];  //pic
 var mAudio = $("#musicID")[0];
 var mTimer; //music播放器 定时器
+
+var pageStart = 0;  // aload数据分页 一次/3条
+var num = 0;
+var lazyK = true;
 
 //首页banner切换
 $('.zq_left').click(function(){
@@ -320,11 +330,27 @@ $(".yilu_scroll").mCustomScrollbar({
 	},
 	callbacks:{
 		whileScrolling:function(){
-//			console.log(this.mcs.topPct+"%");
+			var topPct = this.mcs.topPct+"%";
+//			console.log(topPct);
+			if(topPct >= 98 + "%"){
+				if(pageStart < num){
+					getAloadDate();
+				}else{
+					if(lazyK){
+						lazyK = false;
+						layer.msg("你已无更多动态了呦，快去发布一个新的说说吧！",{
+							time:2500,
+							offset: [800,0],
+							anim: 2
+						},function(){
+							lazyK = true;
+						});
+					}
+				}
+			}
 		}
 	}
 });
-
 //监听hash变化加载相应页
 hashchange();
 $(window).on( 'hashchange', function(e){
@@ -335,32 +361,9 @@ function hashchange(){
 	//进入aload
 	if(indexHs == "aload"){
 		var aloadContent =  $(".yilu_scroll").find("#mCSB_1_container");
-		var photoArray = [];
 		if($(aloadContent).find(".diary_content").length < 1){
 //			console.log(1); //如果内容为空就加载，
-			$.ajax({
-				type:"get",
-				async:false,
-				url:"js/MyTidings.json",
-				dataType:"json",
-				success:function(data){
-//					console.log(data);
-					for(i in data){
-						var tidingsDate = data[i].DATE;
-						var tidingsPlace = data[i].PLACE;
-						var tidingsContent = data[i].CONTENT;
-						var tidingsPhotoBox = "<a><img src='css/loading-2.gif' data-original="+ data[i].PHOTOS +"/></a>" + "<a><img src="+ data[i].PHOTOS2 +"/></a>" + "<a><img src="+ data[i].PHOTOS3 +"/></a>" + "<a><img src="+ data[i].PHOTOS4 +"/></a>" 
-						+ "<a><img src="+ data[i].PHOTOS5 +"/></a>" +"<a><img src="+ data[i].PHOTOS6 +"/></a>" +"<a><img src="+ data[i].PHOTOS7 +"/></a>";
-						var dataList_MyTidings = "<div class='diary_content'><h3 class='diary_title'>"+tidingsDate+"</h3><div class='diary_now'><span class='diary_time'>328天前</span><span class='diary_place'>"+tidingsPlace
-						+"</span></div><div class='diary_text'>"+tidingsContent+"</div><div class='diary_imgBox'>"+tidingsPhotoBox+"</div></div>";
-						$(".yilu_scroll").find("#mCSB_1_container").append(dataList_MyTidings);	
-					}
-					//为图片添加懒加载
-					$(".diary_imgBox").find("img").lazyload({
-      					effect: "fadeIn"
-  					});
-				}
-			});
+			getAloadDate();
 		}
 	}
 	//进入music
@@ -383,13 +386,57 @@ function hashchange(){
 	}
 }
 
-
-
+//获取aload页数据
+function getAloadDate(){
+	$.ajax({
+		type:"get",
+		async:false,
+		url:"js/MyTidings.json",
+		dataType:"json",
+		beforeSend: function () { //layer-loading
+        	layer.load(2,{
+        		shade: [0.5, '#000']
+        	});
+    	},
+		success:function(data){
+			//关闭所有加载层
+			layer.closeAll('loading');
+			var result = data[pageStart].data.list;
+//			console.log(result);
+			for(var i=0;i<result.length;i++){
+				var tidingsDate = result[i].DATE;
+				var tidingsPlace = result[i].PLACE;
+				var tidingsContent = result[i].CONTENT;
+				var tidingsPhotoBox = "<a><img src='css/loading-2.gif' data-original='"+ result[i].PHOTOS +"' /></a>" + "<a><img src='"+ result[i].PHOTOS2 +"'/></a>" + "<a><img src='"+ result[i].PHOTOS3 + "'/></a>" + "<a><img src='"+ result[i].PHOTOS4 +"'/></a>" 
+				+ "<a><img src='"+ result[i].PHOTOS5 +"'/></a>" +"<a><img src='"+ result[i].PHOTOS6 +"'/></a>" +"<a><img src='"+ result[i].PHOTOS7 +"'/></a>";
+				var dataList_MyTidings = "<div class='diary_content'><h3 class='diary_title'>"+tidingsDate+"</h3><div class='diary_now'><span class='diary_time'>328天前</span><span class='diary_place'>"+tidingsPlace
+				+"</span></div><div class='diary_text'>"+tidingsContent+"</div><div class='diary_imgBox'>"+tidingsPhotoBox+"</div></div>";
+				//存问题： 图集对应添加问题。
+				//目前以手动添加方式，，如果没图片就删除 <a>;
+				if($(".diary_imgBox").find("img").attr("src") == ""){
+					$(this).parent("a").remove();
+				}
+				$(".yilu_scroll").find("#mCSB_1_container").append(dataList_MyTidings);
+			}
+			//没有更多数据
+			num = Math.ceil(data[pageStart].data.count/data[pageStart].data.pageSize);
+//			console.log(num);
+			if(pageStart >= num-1){
+				
+            }
+            pageStart++;
+            
+		},
+		complete:function(){
+			//对图片懒加载
+		}
+	});
+}
 //customScrollBal - music
 $(".music_scroll").mCustomScrollbar({
 	set_width:"100%",
 	set_height:"80%",
-	scrollInertia:500,
+	scrollInertia:300,
 	mouseWheel:{
 		scrollAmount:300
 	},
@@ -685,9 +732,10 @@ $(".musicBtn_xunhuan").click(function(){
 //like
 $(".musicBtn_like").click(function(){
 	$(this).css("background-position","-30px -96px");
-	layer.msg("暂时还没有做登录哦~",{
+	layer.msg("ta一定很好听~",{
 		time:1500,
 		offset: [800,0],
+		anim: 3
 	});
 });
 
