@@ -764,7 +764,7 @@ $(".return_content>ul").on("click",".shoucangMusic",function(){
 $(".return_content>ul").on("click",".fenxiangMusic",function(){
 	layer.msg("暂时还没有做登录哦~",{
 		time:1500,
-		offset: [800,0],
+		offset: [800,0]
 	});
 });
 
